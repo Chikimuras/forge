@@ -33,8 +33,10 @@ clone_plugin https://github.com/zsh-users/zsh-syntax-highlighting \
   "$ZCUSTOM/plugins/zsh-syntax-highlighting"
 
 # --- Default shell -----------------------------------------------------------
-zsh_path="$(command -v zsh)"
-if [[ "${SHELL:-}" != "$zsh_path" ]]; then
+# `|| true`: command -v returns non-zero when zsh is absent (e.g. dry-run),
+# which would trip `set -e`.
+zsh_path="$(command -v zsh || true)"
+if [[ -n "$zsh_path" && "${SHELL:-}" != "$zsh_path" ]]; then
   if confirm "Set zsh as your default login shell?"; then
     run sudo chsh -s "$zsh_path" "$USER" || warn "chsh failed; set it manually with: chsh -s $zsh_path"
   fi

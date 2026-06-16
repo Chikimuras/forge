@@ -6,7 +6,7 @@ set -euo pipefail
 # shellcheck source=../lib/common.sh
 source "${FORGE_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/lib/common.sh"
 
-have stow || die "stow not installed (run 00-preflight.sh)."
+require_cmd stow "run 00-preflight.sh."
 
 DOTFILES="$FORGE_DIR/dotfiles"
 [[ -d "$DOTFILES" ]] || die "missing $DOTFILES"

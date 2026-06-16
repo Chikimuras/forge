@@ -4,7 +4,7 @@ set -euo pipefail
 # shellcheck source=../lib/common.sh
 source "${FORGE_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/lib/common.sh"
 
-have zsh || die "zsh not installed (run 10-packages.sh first)."
+require_cmd zsh "run 10-packages.sh first."
 
 # --- oh-my-zsh (unattended) --------------------------------------------------
 OMZ="$HOME/.oh-my-zsh"

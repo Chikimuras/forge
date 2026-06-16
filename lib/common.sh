@@ -64,6 +64,18 @@ has_gui() {
 # --- Package / binary helpers ------------------------------------------------
 have() { command -v "$1" >/dev/null 2>&1; }
 
+# Require a command, but tolerate its absence during a dry-run (it would have
+# been installed by an earlier step in a real run).
+require_cmd() {
+  local cmd="$1" hint="${2:-}"
+  have "$cmd" && return 0
+  if [[ "${FORGE_DRY_RUN:-0}" == "1" ]]; then
+    warn "[dry-run] '$cmd' not present yet (installed by an earlier step in a real run)"
+    return 0
+  fi
+  die "'$cmd' not installed. ${hint}"
+}
+
 # Install apt packages, skipping any already present (idempotent + quiet).
 apt_install() {
   local to_install=()

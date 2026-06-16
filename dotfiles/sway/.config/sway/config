@@ -1,0 +1,111 @@
+# sway config — port of the macOS aerospace setup, AZERTY-adapted.
+# Reload: $mod+Shift+c   |   docs: man 5 sway
+#
+# $mod = Alt (Mod1) to match aerospace muscle memory. Swap to Mod4 (Super)
+# here if Alt collides with too many app shortcuts.
+set $mod Mod1
+set $term kitty
+set $menu wofi --show drun
+set $left h
+set $down j
+set $up k
+set $right l
+
+# --- Input: French AZERTY (so the workspace keysyms below match) -------------
+input * {
+    xkb_layout "fr"
+    xkb_options "ctrl:nocaps"
+}
+
+# --- Appearance --------------------------------------------------------------
+font pango:JetBrainsMono Nerd Font 10
+default_border pixel 2
+gaps inner 6
+gaps outer 2
+# active / inactive border colors (mirrors JankyBorders accent)
+client.focused          #89b4fa #89b4fa #1e1e2e #89b4fa #89b4fa
+client.unfocused        #313244 #313244 #a6adc8 #313244 #313244
+
+# Wallpaper (swaybg) — drop your own at ~/.config/sway/wallpaper.jpg
+output * bg #1e1e2e solid_color
+exec_always test -f ~/.config/sway/wallpaper.jpg && swaybg -i ~/.config/sway/wallpaper.jpg -m fill
+
+# --- Autostart ---------------------------------------------------------------
+exec_always pkill waybar; waybar
+exec dunst
+# Lock after 5 min idle, screen off after 10 min.
+exec swayidle -w \
+    timeout 300 'swaylock -f -c 1e1e2e' \
+    timeout 600 'swaymsg "output * dpms off"' \
+    resume      'swaymsg "output * dpms on"'
+
+# --- Launchers ---------------------------------------------------------------
+bindsym $mod+Return exec $term
+bindsym $mod+d      exec $menu
+bindsym $mod+Shift+q kill
+bindsym $mod+Shift+c reload
+
+# --- Focus (Alt+hjkl, like aerospace) ----------------------------------------
+bindsym $mod+$left  focus left
+bindsym $mod+$down  focus down
+bindsym $mod+$up    focus up
+bindsym $mod+$right focus right
+
+# --- Move window (Alt+Shift+hjkl) --------------------------------------------
+bindsym $mod+Shift+$left  move left
+bindsym $mod+Shift+$down  move down
+bindsym $mod+Shift+$up    move up
+bindsym $mod+Shift+$right move right
+
+# --- Layouts (mirrors aerospace Alt+/ tiles, Alt+, accordion) ----------------
+bindsym $mod+slash  splith
+bindsym $mod+comma  layout tabbed
+bindsym $mod+f      fullscreen
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+space  focus mode_toggle
+
+# --- Resize (Alt+- / Alt+=, like aerospace -50/+50) --------------------------
+bindsym $mod+minus resize shrink width 50px; resize shrink height 50px
+bindsym $mod+equal resize grow   width 50px; resize grow   height 50px
+
+# --- Workspaces --------------------------------------------------------------
+# AZERTY number row (no Shift) → switch workspace 1..0
+bindsym $mod+ampersand   workspace number 1
+bindsym $mod+eacute      workspace number 2
+bindsym $mod+quotedbl    workspace number 3
+bindsym $mod+apostrophe  workspace number 4
+bindsym $mod+parenleft   workspace number 5
+bindsym $mod+minus       workspace number 6
+bindsym $mod+egrave      workspace number 7
+bindsym $mod+underscore  workspace number 8
+bindsym $mod+ccedilla    workspace number 9
+bindsym $mod+agrave      workspace number 10
+bindsym $mod+Tab         workspace back_and_forth
+
+# AZERTY + Shift → the digits, used to MOVE the window to a workspace
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+bindsym $mod+Shift+6 move container to workspace number 6
+bindsym $mod+Shift+7 move container to workspace number 7
+bindsym $mod+Shift+8 move container to workspace number 8
+bindsym $mod+Shift+9 move container to workspace number 9
+bindsym $mod+Shift+0 move container to workspace number 10
+
+# --- Media / brightness / screenshots ----------------------------------------
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioMute        exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym XF86AudioPlay        exec playerctl play-pause
+bindsym XF86AudioNext        exec playerctl next
+bindsym XF86AudioPrev        exec playerctl previous
+bindsym XF86MonBrightnessUp   exec brightnessctl set +5%
+bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym Print exec grim -g "$(slurp)" - | wl-copy
+
+# --- System ------------------------------------------------------------------
+bindsym $mod+Shift+e exec swaynag -t warning -m 'Exit sway?' -B 'Yes' 'swaymsg exit'
+
+include /etc/sway/config.d/*

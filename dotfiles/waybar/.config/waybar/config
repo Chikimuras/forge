@@ -1,0 +1,44 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 30,
+  "spacing": 6,
+  "modules-left": ["sway/workspaces", "sway/mode"],
+  "modules-center": ["clock"],
+  "modules-right": ["mpris", "pulseaudio", "network", "cpu", "memory", "battery", "tray"],
+
+  "sway/workspaces": {
+    "disable-scroll": false,
+    "format": "{name}"
+  },
+  "clock": {
+    "format": "{:%a %d %b  %H:%M}",
+    "tooltip-format": "<tt>{calendar}</tt>"
+  },
+  "mpris": {
+    "format": " {title}",
+    "format-paused": " {title}",
+    "max-length": 40
+  },
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": " muted",
+    "format-icons": { "default": ["", "", ""] },
+    "on-click": "pavucontrol"
+  },
+  "network": {
+    "format-wifi": "  {essid}",
+    "format-ethernet": "  {ifname}",
+    "format-disconnected": "  off",
+    "tooltip-format": "{ipaddr}/{cidr}"
+  },
+  "cpu": { "format": "  {usage}%" },
+  "memory": { "format": "  {percentage}%" },
+  "battery": {
+    "states": { "warning": 30, "critical": 15 },
+    "format": "{icon} {capacity}%",
+    "format-charging": " {capacity}%",
+    "format-icons": ["", "", "", "", ""]
+  },
+  "tray": { "spacing": 8 }
+}

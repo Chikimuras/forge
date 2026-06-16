@@ -1,0 +1,15 @@
+# accounts.conf.example — copy to ~/.config/aerc/accounts.conf and fill in.
+# The real accounts.conf holds credentials and is git-ignored. NEVER commit it.
+#
+# Proton Mail via the Proton Bridge (local IMAP/SMTP). Get the bridge-generated
+# password from the Proton Bridge app (it is NOT your Proton login password).
+
+[Proton]
+source        = imap://USER%40proton.me:BRIDGE_PASSWORD@127.0.0.1:1143
+outgoing      = smtp://USER%40proton.me:BRIDGE_PASSWORD@127.0.0.1:1026
+smtp-starttls = yes
+from          = Your Name <you@proton.me>
+copy-to       = Sent
+# Proton Bridge uses a self-signed cert; trust it explicitly:
+source-cred-cmd =
+imap-oauth2    = false

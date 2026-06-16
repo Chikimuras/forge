@@ -1,0 +1,45 @@
+[user]
+	name = Alexandre Velia
+	email = alexandre@alexandre-velia.com
+[core]
+	editor = nvim
+	autocrlf = input
+	fsmonitor = true
+	untrackedcache = true
+	excludesfile = ~/.config/git/ignore
+[status]
+	showuntrackedfiles = all
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[init]
+	defaultBranch = main
+	templateDir = ~/.git-templates
+[pull]
+	rebase = true
+	ff = only
+[rebase]
+	autoStash = true
+[rerere]
+	enabled = true
+[alias]
+	pushf = push --force-with-lease
+	fix = "!f() { git commit --fixup=$1; }; f"
+	parasites = !git for-each-ref --format=\"%(refname)\" refs/heads/ | grep -E \"^refs/heads/(origin|upstream)/\" || echo \"no parasitic branches\"
+[diff]
+	tool = diffview
+[difftool "diffview"]
+	cmd = nvim -c \"DiffviewOpen\"
+[difftool]
+	prompt = false
+[merge]
+	tool = diffview
+[mergetool "diffview"]
+	cmd = nvim -c \"DiffviewOpen\"
+[mergetool]
+	prompt = false
+	keepBackup = false
+[push]
+	autoSetupRemote = true

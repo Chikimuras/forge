@@ -1,0 +1,19 @@
+# --- Secrets: never commit real credentials -----------------------------------
+dotfiles/zsh/.zsh/secrets.zsh
+dotfiles/aerc/.config/aerc/accounts.conf
+**/secrets.zsh
+**/accounts.conf
+*.token
+*.key
+*.pem
+
+# --- Backups created by stow ---------------------------------------------------
+*.forge-backup.*
+
+# --- OS / editor noise ---------------------------------------------------------
+.DS_Store
+*.swp
+*~
+
+# --- nvim runtime --------------------------------------------------------------
+dotfiles/nvim/.config/nvim/.git/

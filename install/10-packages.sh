@@ -47,13 +47,12 @@ fi
 if ! have glab; then
   log "Installing glab (GitLab CLI)"
   GLAB_VER="1.50.0"
-  case "$ARCH" in
-    amd64) GLAB_ARCH="x86_64" ;;
-    arm64) GLAB_ARCH="arm64" ;;
-    *) GLAB_ARCH="$ARCH" ;;
-  esac
+  # glab names its assets with Go arch strings (linux_amd64 / linux_arm64),
+  # which already match dpkg's — unlike lazygit and jira-cli below, which use
+  # x86_64. Translating amd64 -> x86_64 here yields a 404 on every 64-bit Intel
+  # box; only arm64 happened to work.
   tmp="$(mktemp -d)"
-  run bash -c "curl -fsSL 'https://gitlab.com/gitlab-org/cli/-/releases/v${GLAB_VER}/downloads/glab_${GLAB_VER}_linux_${GLAB_ARCH}.tar.gz' -o '$tmp/glab.tar.gz'"
+  run bash -c "curl -fsSL 'https://gitlab.com/gitlab-org/cli/-/releases/v${GLAB_VER}/downloads/glab_${GLAB_VER}_linux_${ARCH}.tar.gz' -o '$tmp/glab.tar.gz'"
   run tar -xzf "$tmp/glab.tar.gz" -C "$tmp"
   run install -m 0755 "$tmp/bin/glab" "$HOME/.local/bin/glab"
   rm -rf "$tmp"

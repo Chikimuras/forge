@@ -10,6 +10,8 @@ require_cmd stow "run 00-preflight.sh."
 
 DOTFILES="$FORGE_DIR/dotfiles"
 [[ -d "$DOTFILES" ]] || die "missing $DOTFILES"
+# Canonical form, to compare against resolved symlink targets below.
+dotfiles_real="$(readlink -f "$DOTFILES")"
 
 # Desktop packages only stow when a GUI is present.
 PACKAGES=(zsh starship git tmux kitty aerc jira)
@@ -28,6 +30,13 @@ backup_conflicts() {
     rel="${f#"$pkgdir"/}"
     target="$HOME/$rel"
     if [[ -e "$target" && ! -L "$target" ]]; then
+      # stow folds trees: after a first run ~/.zsh is a symlink to
+      # $DOTFILES/zsh/.zsh, so $target resolves to the repo's *own* file —
+      # real, and not a symlink. Backing it up would rename the source out of
+      # the repo (it did: every re-run mangled dotfiles/ until CI caught it).
+      if [[ "$(readlink -f "$target")" == "$dotfiles_real"/* ]]; then
+        continue
+      fi
       backup_path "$target"
     fi
   done < <(find "$pkgdir" -type f -print0)

@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   shellcheck:
@@ -18,6 +19,9 @@ jobs:
             -not -path './dotfiles/*' -print0 \
           | xargs -0 shellcheck -S warning -x
 
+  # Fast feedback: does bootstrap.sh survive an end-to-end --dry-run?
+  # It installs nothing, so it can only catch scripting errors — see
+  # bootstrap-real for the job that checks the install actually works.
   smoke:
     runs-on: ubuntu-latest
     container: ubuntu:24.04
@@ -26,7 +30,10 @@ jobs:
       - name: Install prerequisites
         run: |
           apt-get update
-          apt-get install -y sudo curl wget gnupg lsb-release git stow ca-certificates
+          # zsh is pre-installed on purpose: --dry-run never installs anything,
+          # so without it every `command -v zsh` / require_cmd zsh branch in
+          # 20-shell.sh stays untested here (it broke CI twice that way).
+          apt-get install -y sudo curl wget gnupg lsb-release git stow ca-certificates zsh
           # create a non-root user (bootstrap refuses to run as root)
           useradd -m -s /bin/bash tester
           echo 'tester ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/tester
@@ -38,3 +45,35 @@ jobs:
       - name: Validate stow packages link cleanly (zsh/git/tmux)
         run: |
           su tester -c 'cd ~/forge && stow --no --target=$HOME --dir dotfiles zsh git tmux 2>&1 | tee /tmp/stow.log; ! grep -i conflict /tmp/stow.log'
+
+  # The real thing: no --dry-run. Slow (apt + several upstream downloads) and
+  # dependent on third-party endpoints, but it is the only job that proves the
+  # install works rather than merely that the scripts parse.
+  bootstrap-real:
+    runs-on: ubuntu-latest
+    container: ubuntu:24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create the unprivileged user
+        run: |
+          apt-get update
+          # Bare minimum only: everything else must come from 00-preflight.sh,
+          # which is part of what we are testing.
+          apt-get install -y sudo ca-certificates curl git
+          useradd -m -s /bin/bash tester
+          echo 'tester ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/tester
+          cp -r . /home/tester/forge
+          chown -R tester:tester /home/tester/forge
+      - name: Run bootstrap for real (headless, no security)
+        run: |
+          su tester -c 'cd ~/forge && ./bootstrap.sh --yes --no-desktop --no-security'
+      - name: Assert the install actually landed
+        run: |
+          su tester -c 'cd ~/forge && bash ci/assert-bootstrap.sh'
+      - name: Re-run bootstrap (must be idempotent)
+        run: |
+          su tester -c 'cd ~/forge && ./bootstrap.sh --yes --no-desktop --no-security'
+      - name: Assert post-conditions still hold after the second run
+        run: |
+          su tester -c 'cd ~/forge && bash ci/assert-bootstrap.sh'

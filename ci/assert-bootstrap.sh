@@ -82,12 +82,24 @@ check_link "$HOME/.config/tmux/tmux.conf"
 
 section "assert: the zsh config loads"
 # -i so oh-my-zsh, the rc.d/ split, compinit, zoxide/direnv/mise/starship hooks
-# all get sourced. timeout guards against any prompt sneaking in.
-if timeout 60 zsh -i -c 'exit 0' </dev/null; then
-  ok "zsh -i starts cleanly"
-else
-  fail "zsh -i failed to start (exit $?) — see output above"
+# all get sourced; under a pty (script -qec) so it is a genuine interactive
+# shell — without one, fzf's key-bindings.zsh warns "can't change option: zle"
+# and drowns the real signal.
+#
+# The assertion is that startup prints *nothing*, not merely that it exits 0:
+# a `source` failing inside an oh-my-zsh plugin writes to stderr and leaves the
+# status at 0. timeout guards against a prompt sneaking in.
+startup_out="$(mktemp)"
+if ! TERM=xterm timeout 60 script -qec 'zsh -i -c true' /dev/null >"$startup_out" 2>&1; then
+  fail "interactive zsh exited non-zero"
 fi
+if [[ -s "$startup_out" ]]; then
+  fail "interactive zsh printed this at startup:"
+  cat "$startup_out" >&2
+else
+  ok "zsh -i starts silently"
+fi
+rm -f "$startup_out"
 
 section "assert: summary"
 if (( failures > 0 )); then

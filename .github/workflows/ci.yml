@@ -29,6 +29,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install prerequisites
         run: |
+          # The ubuntu image ships a dpkg config that drops /usr/share/doc/*,
+          # so packages install without the shell integration a real desktop
+          # gets (fzf's key-bindings.zsh, for one). Keep the container honest.
+          rm -f /etc/dpkg/dpkg.cfg.d/excludes
           apt-get update
           # zsh is pre-installed on purpose: --dry-run never installs anything,
           # so without it every `command -v zsh` / require_cmd zsh branch in
@@ -57,6 +61,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Create the unprivileged user
         run: |
+          # See the smoke job: without this, /usr/share/doc/* never lands and
+          # the container stops resembling the machine we are provisioning.
+          rm -f /etc/dpkg/dpkg.cfg.d/excludes
           apt-get update
           # Bare minimum only: everything else must come from 00-preflight.sh,
           # which is part of what we are testing.

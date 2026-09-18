@@ -109,7 +109,9 @@ if ! have yazi; then
       bin="$(find "$tmp" -type f -name "$b" | head -n1)"
       if [[ -n "$bin" ]]; then
         run install -m 0755 "$bin" "$HOME/.local/bin/$b"
-      else
+      elif [[ "${FORGE_DRY_RUN:-0}" != "1" ]]; then
+        # Under --dry-run nothing was downloaded or unzipped, so an empty find
+        # is expected and warning about it would be a false alarm.
         warn "yazi archive did not contain '$b'; check the upstream layout."
       fi
     done

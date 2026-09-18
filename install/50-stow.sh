@@ -12,7 +12,7 @@ DOTFILES="$FORGE_DIR/dotfiles"
 [[ -d "$DOTFILES" ]] || die "missing $DOTFILES"
 
 # Desktop packages only stow when a GUI is present.
-PACKAGES=(zsh starship git tmux kitty aerc jira)
+PACKAGES=(zsh starship git tmux kitty aerc jira yazi)
 if has_gui; then
   PACKAGES+=(sway waybar dunst)
 fi

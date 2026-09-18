@@ -11,7 +11,8 @@ ARCH="$(dpkg --print-architecture)"   # amd64 / arm64
 log "Core CLI tools from apt"
 apt_install \
   zsh tmux neovim ripgrep fd-find bat jq tree htop btop \
-  fzf zoxide direnv trash-cli unrar p7zip-full \
+  fzf zoxide direnv trash-cli unrar p7zip-full unzip \
+  ffmpeg poppler-utils imagemagick \
   fonts-firacode
 
 # Ubuntu ships fd as `fdfind` and bat as `batcat`; expose the canonical names.
@@ -86,5 +87,38 @@ fi
 
 # --- 8. tldr (tealdeer) ------------------------------------------------------
 apt_install tealdeer || warn "tealdeer not in repos; skip (optional)"
+
+# --- 9. yazi (TUI file manager) — release binary -----------------------------
+# Not packaged for Ubuntu 24.04, so we take the upstream zip. It ships two
+# binaries (yazi + ya, the plugin/package manager) nested in a versioned dir.
+# The image previews need ffmpeg / poppler / imagemagick from section 1, plus
+# `allow-passthrough on` in tmux — see dotfiles/tmux.
+if ! have yazi; then
+  log "Installing yazi"
+  YAZI_VER="$(curl -fsSL https://api.github.com/repos/sxyazi/yazi/releases/latest \
+    | grep -Po '"tag_name": *"v\K[^"]*' || echo '26.9.1')"
+  case "$ARCH" in
+    amd64) YAZI_ARCH="x86_64" ;;
+    arm64) YAZI_ARCH="aarch64" ;;
+    *) YAZI_ARCH="$ARCH" ;;
+  esac
+  tmp="$(mktemp -d)"
+  if run bash -c "curl -fsSL 'https://github.com/sxyazi/yazi/releases/download/v${YAZI_VER}/yazi-${YAZI_ARCH}-unknown-linux-gnu.zip' -o '$tmp/yazi.zip'"; then
+    run unzip -q "$tmp/yazi.zip" -d "$tmp"
+    for b in yazi ya; do
+      bin="$(find "$tmp" -type f -name "$b" | head -n1)"
+      if [[ -n "$bin" ]]; then
+        run install -m 0755 "$bin" "$HOME/.local/bin/$b"
+      elif [[ "${FORGE_DRY_RUN:-0}" != "1" ]]; then
+        # Under --dry-run nothing was downloaded or unzipped, so an empty find
+        # is expected and warning about it would be a false alarm.
+        warn "yazi archive did not contain '$b'; check the upstream layout."
+      fi
+    done
+  else
+    warn "yazi download failed; install manually later."
+  fi
+  rm -rf "$tmp"
+fi
 
 ok "packages installed"

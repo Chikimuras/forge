@@ -35,6 +35,6 @@ jobs:
       - name: Dry-run bootstrap (headless, no security)
         run: |
           su tester -c 'cd ~/forge && ./bootstrap.sh --dry-run --yes --no-desktop --no-security'
-      - name: Validate stow packages link cleanly (zsh/git/tmux)
+      - name: Validate stow packages link cleanly (zsh/git/tmux/yazi)
         run: |
-          su tester -c 'cd ~/forge && stow --no --target=$HOME --dir dotfiles zsh git tmux 2>&1 | tee /tmp/stow.log; ! grep -i conflict /tmp/stow.log'
+          su tester -c 'cd ~/forge && stow --no --target=$HOME --dir dotfiles zsh git tmux yazi 2>&1 | tee /tmp/stow.log; ! grep -i conflict /tmp/stow.log'

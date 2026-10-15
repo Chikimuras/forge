@@ -72,6 +72,7 @@ run_step "$FORGE_DIR/install/20-shell.sh"
 run_step "$FORGE_DIR/install/30-cli-tools.sh"
 [[ "$DO_DESKTOP"  == "1" ]] && run_step "$FORGE_DIR/install/40-desktop.sh"
 run_step "$FORGE_DIR/install/50-stow.sh"
+run_step "$FORGE_DIR/install/60-claude.sh"
 [[ "$DO_SECURITY" == "1" ]] && run_step "$FORGE_DIR/install/90-security.sh"
 
 section "done"

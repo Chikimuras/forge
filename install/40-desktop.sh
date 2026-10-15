@@ -9,7 +9,7 @@ source "${FORGE_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/lib/commo
 log "Installing Wayland tiling stack"
 apt_install \
   sway swaybg swayidle swaylock waybar \
-  dunst wl-clipboard grim slurp \
+  dunst libnotify-bin wl-clipboard grim slurp \
   kitty \
   fonts-font-awesome \
   brightnessctl playerctl pavucontrol \

@@ -18,6 +18,7 @@ cd forge
 | **CLI** | eza, bat, fd, ripgrep, fzf, zoxide, lazygit, tmux (+tpm), neovim (LazyVim), direnv, mise, gh, glab, jira-cli, aerc |
 | **Desktop** | **sway** (Wayland tiling) + **waybar** + **dunst** + wl-clipboard + kitty + Nerd Font |
 | **Security** | hardened SSH, ufw, fail2ban, unattended-upgrades, sysctl hardening, AppArmor, Lynis audit |
+| **Claude Code** | tmux tab dot per session (yellow running / red needs you / green done, unseen), `prefix + a` picker, `prefix + Tab` next waiting session, desktop notif with "Aller" action, sessions restored via tmux-resurrect |
 
 All of Alexandre's aliases and functions are carried over verbatim where portable;
 macOS-only bits (clipboard, `open`, `notify`, Spotlight pickers) are reimplemented
@@ -42,7 +43,7 @@ The desktop phase auto-skips on headless machines.
 bootstrap.sh        # orchestrator
 lib/common.sh       # logging, OS detection, idempotent helpers, backups
 install/            # 00-preflight → 10-packages → 20-shell → 30-cli-tools
-                    # → 40-desktop → 50-stow → 90-security
+                    # → 40-desktop → 50-stow → 60-claude → 90-security
 security/           # ssh, firewall, fail2ban, unattended-upgrades, sysctl, apparmor, audit
 dotfiles/           # GNU stow packages (one dir per app)
 secrets/            # how to place local secrets (none are committed)

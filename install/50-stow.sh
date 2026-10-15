@@ -12,7 +12,7 @@ DOTFILES="$FORGE_DIR/dotfiles"
 [[ -d "$DOTFILES" ]] || die "missing $DOTFILES"
 
 # Desktop packages only stow when a GUI is present.
-PACKAGES=(zsh starship git tmux kitty aerc jira)
+PACKAGES=(zsh starship git tmux kitty aerc jira claude)
 if has_gui; then
   PACKAGES+=(sway waybar dunst)
 fi
@@ -37,7 +37,11 @@ for pkg in "${PACKAGES[@]}"; do
   [[ -d "$DOTFILES/$pkg" ]] || { warn "package missing, skipping: $pkg"; continue; }
   log "stow: $pkg"
   backup_conflicts "$pkg"
-  run stow --dir "$DOTFILES" --target "$HOME" --restow "$pkg"
+  # ~/.claude is Claude Code's state dir: never fold it into a symlink to the repo,
+  # or Claude would write its sessions/credentials inside forge.
+  fold=()
+  [[ "$pkg" == claude ]] && fold=(--no-folding)
+  run stow --dir "$DOTFILES" --target "$HOME" "${fold[@]}" --restow "$pkg"
 done
 
 ok "dotfiles linked"
